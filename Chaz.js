@@ -10,7 +10,7 @@ class Chaz{
         this.selfType =selfType;
         this.targetType =targetType;
 
-        //连接池还有可优化的余地，比如script类型索引、卸载脚本时移除等
+        //连接池
         this.connectPool =new Set();
 
         this.init();
@@ -23,8 +23,9 @@ class Chaz{
             this.connectTransfer();
             Chaz.needConnect =false;
             if(!this.targetType) return;//仅建立连接，无需继续实例化
-        }else if(this.selfType==='content'){
+        }else if(this.selfType==='content'&&Chaz.needConnect){
             this.connectBackground();
+            Chaz.needConnect =false;
         };
         if(!Chaz.allowScriptType.includes(this.targetType)){
             throw new Error(`Chaz.init: targetType "${this.selfType} is not allowed."`);
@@ -36,7 +37,10 @@ class Chaz{
     };
     connectTransfer(){
         browser.runtime.onMessage.addListener((data ,sender ,callback)=>{
-            if(!Chaz.isChazEvent(data))return;//不是Chaz事件
+            if(
+                !Chaz.isChazEvent(data)
+                || Chaz.isNormalChazEvent(data)
+            )return;//不是Chaz事件或是普通Chaz事件
             switch(true){
                 case data.transfer://转发请求
                     return Chaz.send(data.data,{
@@ -45,16 +49,35 @@ class Chaz{
                     });
                 case data.hello://将连接添加进连接池
                     this.connectPool.add(sender.tab.id);
-                    return Promise.resolve(()=>'add pool.');
+                    return Promise.resolve(sender.tab.id);
+                case typeof data.goodbye==='string'://将连接从连接池基础
+                    this.connectPool.delete(+data.goodbye);
+                    return Promise.resolve(`delete ${sender.tab.id} in pool.`);
+                case data.extra://额外的查询报文
+
             };
         });
+        if(browser.tabs && browser.tabs.onActivated){
+            browser.tabs.onActivated.addListener(activeInfo=>{
+                Chaz.activeInfo =activeInfo;
+            });
+        };
     };
     connectBackground(){
         Chaz.send(new Chaz.ChazEvent({
             origin :this.selfType,
             target :'background',
             hello :true,
-        }));
+        })).then(function(tabId){
+            Chaz.tabId=''+tabId;
+        });
+        window.addEventListener('unload',function(){
+            Chaz.send(new Chaz.ChazEvent({
+                origin :this.selfType,
+                target :'background',
+                goodbye :Chaz.tabId,
+            }));
+        });
     };
     onMessageListener({origin,target,event,data},sender,callback){
         if(
@@ -63,6 +86,9 @@ class Chaz{
         ) return;//丢弃事件
 
         //还原类似于原生的事件信息，执行事件
+        if(origin==='content'){
+
+        }
         var argns =Array.from(arguments);
         argns[0] =data;
         return this.execEvent(event,argns);
@@ -109,10 +135,13 @@ class Chaz{
     };
 };
 
-
+Chaz.activeInfo =null;
+Chaz.tabId =null;
 Chaz.needConnect =true;
-Chaz.allowScriptType=['page','content','background','popup'];
-
+Chaz.allowScriptType=['content','background','popup'];
+Chaz.myIsActivedTab =function(){
+    return Chaz.send();
+};
 
 /**
  * Chaz事件
@@ -122,7 +151,9 @@ Chaz.ChazEvent =class{constructor(data){
     this.chaz     =true;//该事件是否属于Chaz的标志位
     this.transfer =!!data.transfer;
     this.hello    =!!data.hello;
-    ['origin','target','event','tagId','data'].forEach(
+    this.extra    =!!data.extra;
+    this.goodbye  =data.goodbye||false;
+    ['origin','target','event','tabId','data'].forEach(
         key=>{
             if(key in data)this[key]=data[key];
         }
@@ -136,10 +167,12 @@ Chaz.ChazEvent =class{constructor(data){
  * @param {boolean} transfer - 该发送是转发过来的，用于特殊处理
  * */
 Chaz.send =function(ce,{tabIdPool,transfer}={}){
+    console.log(arguments);
     if(
         (ce.origin==='background'&&ce.target==='content')
         || (transfer && ce.target==='content')
     ){
+        if(ce.tabId) return browser.tabs.sendMessage(ce.tabId ,ce);
         tabIdPool =Array.from(tabIdPool);
         return Promise.race(
             tabIdPool.map(tabId=>browser.tabs.sendMessage(tabId ,ce))
@@ -179,9 +212,16 @@ Chaz.isChazEvent =function(obj){
  * */
 Chaz.isNormalChazEvent =function(obj){
     return Chaz.isChazEvent(obj)
-        && obj.transfer!==true
-        && obj.hello!==true
+        && obj.transfer !==true
+        && obj.hello    !==true
+        && obj.goodbye  !==true
     ;
+};
+/**
+ * 检测当前content script所在的标签是否是激活状态
+ * */
+Chaz.myIsActivedTab =function(){
+
 };
 
 // if(// 检测若在background作用域，自动建立连接
