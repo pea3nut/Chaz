@@ -167,7 +167,6 @@ Chaz.ChazEvent =class{constructor(data){
  * @param {boolean} transfer - 该发送是转发过来的，用于特殊处理
  * */
 Chaz.send =function(ce,{tabIdPool,transfer}={}){
-    console.log(arguments);
     if(
         (ce.origin==='background'&&ce.target==='content')
         || (transfer && ce.target==='content')
