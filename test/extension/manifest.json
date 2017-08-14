@@ -4,7 +4,7 @@
     "version": "0.0.2",
     
     "description": "A communication library for WebExtensions.",
-    "homepage_url": "http://pea3nut.info",
+    "homepage_url": "http://github.com/pea3nut/Chaz",
     
     "applications": {
         "gecko": {
@@ -33,6 +33,9 @@
             "content.js"
         ]
     }],
+    "web_accessible_resources": [
+        "popup.html"
+    ],
     
     "browser_action": {
         "browser_style": true,

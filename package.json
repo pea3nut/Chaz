@@ -1,0 +1,28 @@
+{
+  "name": "chaz",
+  "version": "0.0.1",
+  "description": "A communication library for WebExtensions.",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "node ./bin/build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pea3nut/Chaz.git"
+  },
+  "author": "pea3nut",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pea3nut/Chaz/issues"
+  },
+  "homepage": "https://github.com/pea3nut/Chaz#readme",
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0",
+    "sinon": "^3.0.0"
+  }
+}
