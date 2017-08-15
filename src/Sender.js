@@ -48,7 +48,7 @@ Sender.sendTransferMessage =function(message){
 };
 Sender.sendMessageUseTabs =async function(message){
     if(!Number.isNaN(+message['tab_id'])){
-        return browser.tabs.sendMessage(message['tab_id'],message)
+        return browser.tabs.sendMessage(+message['tab_id'],message);
     }else{//广播发送
         var tabs =await browser.tabs.query({});
         return Promise.race(

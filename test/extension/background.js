@@ -3,7 +3,13 @@ console.log('background.js');
 Chaz.init('background');
 //const Content =new Chaz('content');
 
+const iFrame =new Chaz('iframe.content');
 
+setInterval(function(){
+    iFrame.send('test').then(function(){
+        console.log(...arguments);
+    });
+},1000);
 
 /**A content -> background
 

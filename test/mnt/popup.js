@@ -1,12 +1,6 @@
 console.log('popup.js');
 
-browser.runtime.onMessage.addListener(function(){
-    console.log('popup.js',...arguments);
+browser.runtime.onMessage.addListener(function(data){
+    console.log('popup receive');
+    return window.parent.Promise.resolve('iframe 789');
 });
-window.addEventListener('message',function(){
-    console.log('popup.js',...arguments);
-});
-
-setInterval(function(){
-    window.parent.postMessage('123','*');
-},1000);

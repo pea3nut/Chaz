@@ -28,3 +28,7 @@ Utility.setDefaultTabId =function(message){
     }
     message['tab_id']=this.QuickData.tabId;
 };
+Utility.getActivatedTabId =async function(){
+    var tabs =await browser.tabs.query({active:true});
+    return tabs[0].id;
+};

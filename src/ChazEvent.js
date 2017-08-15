@@ -15,7 +15,7 @@ class ChazEvent{
             let that =this;
             event.execFn =function(){
                 that.off(eventType ,listener);
-                listener(arguments);
+                return listener(...arguments);
             };
         };
     };

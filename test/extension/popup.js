@@ -1,10 +1,24 @@
 console.log('popup.js');
 
 ~async function(){
-
+    await Chaz.init('iframe.content');
+    const Background = new Chaz('background');
+    Background.on('test',function(){
+        return 'ok';
+    });
+    // const Content = new Chaz('page.content');
+    // Content.send('loaded');
+    // Content.on('getTime',function(){
+    //     console.log('iframe receive getTime event');
+    //     return new Promise(function(resolve){
+    //         setTimeout(function(){
+    //             resolve((new Date).toString());
+    //         },300);
+    //     });
+    // });
 
     /** C popup -> content
-    await Chaz.init('popup.privileged');
+    await Chaz.init('popup.content');
     const Content = new Chaz('content');
     const Background = new Chaz('background');
 

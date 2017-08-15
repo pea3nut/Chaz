@@ -3,9 +3,27 @@ console.log('content.js');
 
 
 ~async function(){
-    await Chaz.init('content');
+    //await Chaz.init('content');
     //const Popup =new Chaz('popup.privileged');
     //const Background =new Chaz('background');
+
+
+    await Chaz.init('iframe.content');
+    const Background = new Chaz('background');
+    Background.on('test',function(){
+        return 'ok';
+    });
+
+    // await Chaz.init('page.content');
+    // var elt =document.createElement('iframe');
+    // elt.src=browser.extension.getURL('popup.html');
+    // document.body.appendChild(elt);
+
+    // const iFrame =new Chaz('iframe.content');
+    // await iFrame.wait('loaded');
+    //
+    // var data =await iFrame.send('getTime');
+    // console.log('getTime:',data);
 
 
 

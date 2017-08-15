@@ -28,6 +28,10 @@ Utility.setDefaultTabId =function(message){
     }
     message['tab_id']=this.QuickData.tabId;
 };
+Utility.getActivatedTabId =async function(){
+    var tabs =await browser.tabs.query({active:true});
+    return tabs[0].id;
+};
 class ChazEvent{
     constructor(){
         this._events ={};
@@ -45,7 +49,7 @@ class ChazEvent{
             let that =this;
             event.execFn =function(){
                 that.off(eventType ,listener);
-                listener(arguments);
+                return listener(...arguments);
             };
         };
     };
@@ -274,7 +278,7 @@ Sender.sendTransferMessage =function(message){
 };
 Sender.sendMessageUseTabs =async function(message){
     if(!Number.isNaN(+message['tab_id'])){
-        return browser.tabs.sendMessage(message['tab_id'],message)
+        return browser.tabs.sendMessage(+message['tab_id'],message);
     }else{//广播发送
         var tabs =await browser.tabs.query({});
         return Promise.race(
@@ -315,24 +319,27 @@ class Receiver extends ChazEvent{
 };
 
 Receiver.prototype.listen =function(){
-    browser.runtime.onMessage.addListener((message ,sender)=>{
+    browser.runtime.onMessage.addListener((message ,sender ,sendResponse)=>{
         if(InsideMessage.is(message))return;
         if(
             !Message.is(message)
             || !Utility.matchAddress(message.to ,this.self)
             || !Utility.matchAddress(message.from ,this.target)
-        )return Utility.log(
-            this.self,
-            '->',
-            this.target,
-            'ignore message',
-            message,
-            {
-                match_from:Utility.matchAddress(message.from ,this.target),
-                match_to:Utility.matchAddress(message.to ,this.self),
-                is:Message.is(message),
-            }
-        );
+        ){
+            Utility.log(
+                this.self,
+                '->',
+                this.target,
+                'ignore message',
+                message,
+                {
+                    match_from:Utility.matchAddress(message.from ,this.target),
+                    match_to:Utility.matchAddress(message.to ,this.self),
+                    is:Message.is(message),
+                }
+            );
+            return;
+        }
         switch(`${message.from[0]} -> ${message.to[0]}`){
             case 'content -> content':
                 if('sender' in message){
@@ -345,7 +352,11 @@ Receiver.prototype.listen =function(){
                     message['tab_id'] !== '*'
                     && message['tab_id'] !== Utility.QuickData.tabId
                 ){
-                    Utility.log(this.self,'->',this.target,`tab id is ${Utility.QuickData.tabId} but message`,message);
+                    Utility.log(
+                        this.self,'->',this.target,
+                        `tab id is ${Utility.QuickData.tabId} but message`,
+                        message
+                    );
                     return
                 };
         };
@@ -353,10 +364,16 @@ Receiver.prototype.listen =function(){
             Utility.log(this.self,'no listener',message);
             return;
         };
-        return this.execEventAll(
+        // Firefox bug
+        // return this.execEventAll(
+        //     message['event_type'],
+        //     [message.data ,sender ,message]
+        // );
+        this.execEventAll(
             message['event_type'],
             [message.data ,sender ,message]
-        );
+        ).then(sendResponse);
+        return true;
     });
 };
 
@@ -371,18 +388,18 @@ Receiver.backgroundInit =async function(type){
         switch(message['event_type']){
             case 'hello':
                 return async function (){
-                    var tab =null;
+                    var tabId =null;
                     if(!('tab' in sender)){
-                        tab =await browser.tabs.query({active:true});
-                        tab =tab[0];
+                        tabId =await Utility.getActivatedTabId();
                     }else{
-                        tab =sender.tab;
+                        tabId =sender.tab.id;
                     };
-                    return {tabId:tab.id};
+                    return {tabId};
                 }();
                 break;
             case 'transfer':
                 message.data.sender =sender;//用于劫持sender
+                Utility.log('transfer message',message);
                 return Sender.sendMessageUseTabs(message.data);
             default:
                 Utility.log(Receiver.self,'ignore isInsideMessage',message);
