@@ -8,34 +8,43 @@ English document is [here](./README-English.md).
 
 Chaz.js是为[WebExtensions](https://developer.mozilla.org/zh-CN/Add-ons/WebExtensions)打造的通信库，可以极大的简化WebExtensions不同类型的脚本传递消息。
 
-目前支持的类型脚本有：content script、background script、 privileged scripts（如 popup scripts 、page scripts）
-
-Chaz.js为上述脚本提供统一的发送接口，比如：
+Chaz提供了一套更亲近与人类逻辑而不是底层实现的消息借口。
 
 ```js
 // background.js
 
-const Content =new Chaz('background','content');
-Content.on('hello',function(data ,sender ,callback){
-    console.log(`background.js: receive content.js's hello "${data}"`);
-});
+(async function(){
+
+    await Chaz.init('background');//等待初始化完成
+    const Content =new Chaz('content');//要与之通信的目标
+
+    Content.on('loaded',function(data ,url){
+        console.log('you opened '+data.url);
+    });
+
+}());
+
 ```
 
 ```js
 // content.js
+(async function(){
 
-const Background =new Chaz('content','background');
-Background.send('hello','hello background.js, this is content.js');
+    await Chaz.init('content');//等待初始化完成
+    const Background =new Chaz('background');//要与之通信的目标
+
+    Background.send('loaded',{url:document.URL});
+
+}());
 ```
 
-详细的使用可以参考项目中`background.js`、`content.js`、`popup.js`文件。
+详细的使用可以参考项目中`/test/extensions`文件夹。
 
-需要额外注意的是，若想要content与popup通信，你必须在background中实例化一个Chaz实例，哪怕不传入第二个参数：
+# 使用
 
-```js
-// background.js
-new Chaz('background');
-```
+你**必须**要在background script中引入Chaz库，并调用`Chaz.init('background')`。否则Chaz库将不会正常工作。
+
+@@ 待补完
 
 # APIs
 
