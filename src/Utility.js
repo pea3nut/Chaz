@@ -3,9 +3,12 @@ class Utility{};
 Utility.develop =false;
 Utility.allowScriptType =['background','content','privileged'];
 Utility.matchAddress =function(target ,address){
-    return address.every((item,index)=>{
-        return item ===target[index];
-    });
+    return Array.isArray(target) 
+        && Array.isArray(address) 
+        && address.every((item,index)=>{
+            return item ===target[index];
+        })
+    ;
 };
 Utility.parseScriptType =function(str){
     if(Array.isArray(str))return str;
