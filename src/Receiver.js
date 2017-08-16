@@ -92,7 +92,7 @@ Receiver.backgroundInit =async function(type){
         if(
                 !InsideMessage.is(message)
                 || !Utility.matchAddress(message.to ,Utility.parseScriptType('background'))
-        )return;
+        )return null;
         switch(message['event_type']){
             case 'hello':
                 return async function (){
@@ -104,16 +104,16 @@ Receiver.backgroundInit =async function(type){
                     };
                     return {tabId};
                 }();
-                break;
             case 'transfer':
                 message.data.sender =sender;//用于劫持sender
                 Utility.log('transfer message',message);
                 return Sender.sendMessageUseTabs(message.data);
             default:
                 Utility.log(Receiver.self,'ignore isInsideMessage',message);
-                break;
+                return null;
         };
     });
+    return true;
 };
 Receiver.contentInit =async function(type){
     return Utility.QuickData =await Sender.sendMessage(new InsideMessage({

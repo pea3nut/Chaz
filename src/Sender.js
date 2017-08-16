@@ -34,6 +34,8 @@ Sender.sendMessage =async function(message){
         case 'content -> background':
         case 'privileged -> background':
             return this.sendMessageUseRuntime(message);
+        default:
+            throw new Error('unknown message',message);
     };
 };
 
