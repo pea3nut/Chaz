@@ -30,7 +30,7 @@ describe('Sender test:',function(){
         const Content =new Sender('privileged','content');
         Content.send('test',{a:1});
         Assert(spy.withArgs(
-            Utility.QuickData.tabId,
+            +Utility.QuickData.tabId,
             new Message({
                 eventType:'test',
                 from :'privileged',
