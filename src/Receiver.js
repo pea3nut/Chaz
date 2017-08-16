@@ -28,7 +28,7 @@ class Receiver extends ChazEvent{
 
 Receiver.prototype.listen =function(){
     browser.runtime.onMessage.addListener((message ,sender ,sendResponse)=>{
-        if(InsideMessage.is(message))return;
+        if(InsideMessage.is(message))return false;
         if(
             !Message.is(message)
             || !Utility.matchAddress(message.to ,this.self)
@@ -46,7 +46,7 @@ Receiver.prototype.listen =function(){
                     is:Message.is(message),
                 }
             );
-            return;
+            return false;
         }
         switch(`${message.from[0]} -> ${message.to[0]}`){
             case 'content -> content':
@@ -65,12 +65,12 @@ Receiver.prototype.listen =function(){
                         `tab id is ${Utility.QuickData.tabId} but message`,
                         message
                     );
-                    return
+                    return false;
                 };
         };
         if(this.has(message['event_type'])===0){
             Utility.log(this.self,'no listener',message);
-            return;
+            return false;
         };
         // Firefox bug
         // return this.execEventAll(
