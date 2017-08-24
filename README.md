@@ -44,14 +44,9 @@ Chaz提供了一套更亲近与人类逻辑而不是底层实现的消息借口�
 
 你**必须**要在background script中引入Chaz库，并调用`Chaz.init('background')`。否则Chaz库将不会正常工作。
 
-@@ 待补完
-
 # APIs
 
-## Chaz#constructor(selfType,targetType)
-
-- selfType：当前运行的脚本类型
-- targetType：想与之通信的脚本类型
+## Chaz.init(selfType)
 
 ## Chaz#on(type ,listener)
 
@@ -64,17 +59,44 @@ Chaz提供了一套更亲近与人类逻辑而不是底层实现的消息借口�
 - sender：有关发送方的信息
 - callback：响应这个事件并返回值
 
-### callback
+## Chaz#one(type ,listener)
 
-A function to call, at most once, to send a response to the message. The function takes a single argument, which may be any JSON-ifiable object. This argument is passed back to the message sender.
+类似于#on，但listener仅会被触发一次
 
-If you have more than one onMessage listener in the same document, then only one may send a response.
+## Chaz#wait(type ,filter)
 
-To send a response synchronously, call sendResponse before the listener function returns. To send a response asynchronously:
+返回一个Promise，等待一个事件的发生。
 
+它在异步函数中格外有用，并且语义更好。
 
-- either keep a reference to the sendResponse argument and return true from the listener function. You will then be able to call sendResponse after the listener function has returned.
-- or return a Promise from the listener function and resolve the promise when the response is ready.
+使用on
+
+```js
+var listener =null;
+iFrame.on('loaded' ,listener =function(data ,sender){
+    Chaz.Utility.getActivatedTabId().then(function(tabId){
+
+        // do sth
+
+        iFrame.off('loaded',listener);
+    });
+});
+```
+
+使用wait
+
+```js
+(async function(){
+    await iFrame.wait('loaded');
+
+    // do sth
+
+})();
+```
+
+并且，你可以添加一个过滤器返回true/false来觉得是否不再继续等待。
+
+@@ 未完成，下面的别看。。。
 
 ## Chaz#send(eventType ,data ,tabId=null)
 
