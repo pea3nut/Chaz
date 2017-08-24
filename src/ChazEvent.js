@@ -63,7 +63,7 @@ class ChazEvent{
      * */
     has(eventType){
         if(eventType in this._events){
-            return this._events[eventType];
+            return this._events[eventType].length;
         }else{
             return 0;
         }

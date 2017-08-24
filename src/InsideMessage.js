@@ -1,4 +1,4 @@
-class InsideMessage extends Message{
+class InsideMessage extends Message{//todo: internal
     constructor(info){
         if(!InsideMessage.allowType.includes(info.eventType)){
             throw new Error(`event_type "${info.eventType}" is not support in InsideMessage."`)

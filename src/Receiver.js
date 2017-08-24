@@ -31,7 +31,7 @@ Receiver.prototype.listen =function(){
         if(InsideMessage.is(message))return false;
         if(
             !Message.is(message)
-            || !Utility.matchAddress(message.to ,this.self)
+            || !Utility.matchAddress(this.self ,message.to)
             || !Utility.matchAddress(message.from ,this.target)
         ){
             Utility.log(
@@ -92,7 +92,7 @@ Receiver.backgroundInit =async function(type){
         if(
                 !InsideMessage.is(message)
                 || !Utility.matchAddress(message.to ,Utility.parseScriptType('background'))
-        )return null;
+        )return undefined;
         switch(message['event_type']){
             case 'hello':
                 return async function (){
@@ -110,7 +110,7 @@ Receiver.backgroundInit =async function(type){
                 return Sender.sendMessageUseTabs(message.data);
             default:
                 Utility.log(Receiver.self,'ignore isInsideMessage',message);
-                return null;
+                return undefined;
         };
     });
     return true;

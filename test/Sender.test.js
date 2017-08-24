@@ -16,7 +16,7 @@ function initBrowser(){
             sendMessage(){},
         },
         tabs:{
-            sendMessage(){},
+            sendMessage(){return new Promise(()=>{})},
             query(){},
         },
     };

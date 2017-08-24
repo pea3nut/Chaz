@@ -100,7 +100,7 @@ class ChazEvent{
      * */
     has(eventType){
         if(eventType in this._events){
-            return this._events[eventType];
+            return this._events[eventType].length;
         }else{
             return 0;
         }
@@ -209,11 +209,11 @@ Message.is =function(message){
         && Array.isArray(message.from)
         && 'to'   in message
         && Array.isArray(message.to)
-        && 'event_type'   in message
+        && 'event_type' in message
         && typeof message['event_type'] ==='string'
     ;
 };
-class InsideMessage extends Message{
+class InsideMessage extends Message{//todo: internal
     constructor(info){
         if(!InsideMessage.allowType.includes(info.eventType)){
             throw new Error(`event_type "${info.eventType}" is not support in InsideMessage."`)
@@ -359,7 +359,7 @@ Receiver.prototype.listen =function(){
         if(InsideMessage.is(message))return false;
         if(
             !Message.is(message)
-            || !Utility.matchAddress(message.to ,this.self)
+            || !Utility.matchAddress(this.self ,message.to)
             || !Utility.matchAddress(message.from ,this.target)
         ){
             Utility.log(
@@ -420,7 +420,7 @@ Receiver.backgroundInit =async function(type){
         if(
                 !InsideMessage.is(message)
                 || !Utility.matchAddress(message.to ,Utility.parseScriptType('background'))
-        )return null;
+        )return undefined;
         switch(message['event_type']){
             case 'hello':
                 return async function (){
@@ -438,7 +438,7 @@ Receiver.backgroundInit =async function(type){
                 return Sender.sendMessageUseTabs(message.data);
             default:
                 Utility.log(Receiver.self,'ignore isInsideMessage',message);
-                return null;
+                return undefined;
         };
     });
     return true;

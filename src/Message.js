@@ -33,7 +33,7 @@ Message.is =function(message){
         && Array.isArray(message.from)
         && 'to'   in message
         && Array.isArray(message.to)
-        && 'event_type'   in message
+        && 'event_type' in message
         && typeof message['event_type'] ==='string'
     ;
 };
