@@ -8,7 +8,7 @@ require =function(origin){
         return origin(path);
     };
 }(require);
-const {Receiver,Message,InsideMessage} =require('../dist/Chaz.node.js');
+const {Receiver,Message,InternalMessage} =require('../dist/Chaz.node.js');
 const W =(global||window);
 
 function initBrowser(){
@@ -48,7 +48,7 @@ describe('Receiver . *',function(){
         Receiver.init('background');
         Assert.instanceOf(listener,Function);
 
-        var promise =listener(new InsideMessage({
+        var promise =listener(new InternalMessage({
             eventType :'hello',
             to        :'background',
             from      :'content',
@@ -76,7 +76,7 @@ describe('Receiver . *',function(){
         });
         var qd =await Receiver.init('privileged');
         Assert(W.browser.runtime.sendMessage.called);
-        Assert(W.browser.runtime.sendMessage.withArgs(new InsideMessage({
+        Assert(W.browser.runtime.sendMessage.withArgs(new InternalMessage({
             to:'background',
             from:'privileged',
             eventType:'hello'

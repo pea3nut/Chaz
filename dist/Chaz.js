@@ -215,22 +215,22 @@ Message.is =function(message){
         && typeof message['event_type'] ==='string'
     ;
 };
-class InsideMessage extends Message{//todo: internal
+class InternalMessage extends Message{
     constructor(info){
-        if(!InsideMessage.allowType.includes(info.eventType)){
-            throw new Error(`event_type "${info.eventType}" is not support in InsideMessage."`)
+        if(!InternalMessage.allowType.includes(info.eventType)){
+            throw new Error(`event_type "${info.eventType}" is not support in InternalMessage."`)
         };
         super(...arguments);
         this.inside =true;
     };
 };
-InsideMessage.allowType =['hello','transfer'];
-/**@param {ChazCommunication.InsideMessage} message*/
-InsideMessage.is =function(message){
+InternalMessage.allowType =['hello','transfer'];
+/**@param {InternalMessage} message*/
+InternalMessage.is =function(message){
     return Message.is(message)
         && 'inside' in message
         && message.inside===true
-        && InsideMessage.allowType.includes(message.event_type)
+        && InternalMessage.allowType.includes(message.event_type)
     ;
 };
 class Sender{
@@ -275,7 +275,7 @@ Sender.sendMessage =async function(message){
 };
 
 Sender.sendTransferMessage =function(message){
-    var im =new InsideMessage({
+    var im =new InternalMessage({
         to :'background',
         from :message.from,
         data :message,
@@ -358,7 +358,7 @@ class Receiver extends ChazEvent{
 
 Receiver.prototype.listen =function(){
     browser.runtime.onMessage.addListener((message ,sender ,sendResponse)=>{
-        if(InsideMessage.is(message))return false;
+        if(InternalMessage.is(message))return false;
         if(
             !Message.is(message)
             || !Utility.matchAddress(this.self ,message.to)
@@ -420,7 +420,7 @@ Receiver.called =false;
 Receiver.backgroundInit =async function(type){
     browser.runtime.onMessage.addListener(function(message,sender){
         if(
-                !InsideMessage.is(message)
+                !InternalMessage.is(message)
                 || !Utility.matchAddress(message.to ,Utility.parseScriptType('background'))
         )return undefined;
         switch(message['event_type']){
@@ -439,14 +439,14 @@ Receiver.backgroundInit =async function(type){
                 Utility.log('transfer message',message);
                 return Sender.sendMessageUseTabs(message.data);
             default:
-                Utility.log(Receiver.self,'ignore isInsideMessage',message);
+                Utility.log(Receiver.self,'ignore isInternalMessage',message);
                 return undefined;
         };
     });
     return true;
 };
 Receiver.contentInit =async function(type){
-    return Utility.QuickData =await Sender.sendMessage(new InsideMessage({
+    return Utility.QuickData =await Sender.sendMessage(new InternalMessage({
         eventType :'hello',
         to :'background',
         from :type,

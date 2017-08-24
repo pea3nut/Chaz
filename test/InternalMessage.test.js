@@ -1,11 +1,11 @@
 const Sinon =require('sinon');
 const Assert = require('chai').assert;
-const {InsideMessage,Message,Utility} =require('../dist/Chaz.node.js');
+const {InternalMessage,Message,Utility} =require('../dist/Chaz.node.js');
 
 
 
-describe('InsideMessage test:',function(){
-    it('InsideMessage#constructor',function(){
+describe('InternalMessage test:',function(){
+    it('InternalMessage#constructor',function(){
         var info ={
             from :'background',
             to :'content',
@@ -14,12 +14,12 @@ describe('InsideMessage test:',function(){
             tabId :'*',
         };
         Assert.throws(function(){
-            InsideMessage(info);
+            InternalMessage(info);
         });
         info.eventType ='hello';
-        var message =new InsideMessage(info);
+        var message =new InternalMessage(info);
     });
-    it('InsideMessage.is',function(){
+    it('InternalMessage.is',function(){
         var info ={
             from :'background',
             to :'content',
@@ -27,7 +27,7 @@ describe('InsideMessage test:',function(){
             data :['a','b'],
             tabId :'*',
         };
-        Assert.isNotOk(InsideMessage.is(new Message(info)));
-        Assert.isOk(InsideMessage.is(new InsideMessage(info)));
+        Assert.isNotOk(InternalMessage.is(new Message(info)));
+        Assert.isOk(InternalMessage.is(new InternalMessage(info)));
     });
 });

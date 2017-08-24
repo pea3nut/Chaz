@@ -40,7 +40,7 @@ Sender.sendMessage =async function(message){
 };
 
 Sender.sendTransferMessage =function(message){
-    var im =new InsideMessage({
+    var im =new InternalMessage({
         to :'background',
         from :message.from,
         data :message,

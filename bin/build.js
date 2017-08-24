@@ -4,7 +4,7 @@ const FileList =[
     '../src/Utility.js',
     '../src/ChazEvent.js',
     '../src/Message.js',
-    '../src/InsideMessage.js',
+    '../src/InternalMessage.js',
     '../src/Sender.js',
     '../src/Receiver.js',
     '../src/Chaz.js',
